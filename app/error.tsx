@@ -14,7 +14,7 @@ export default function Error({ error, reset }: { error: Error, reset: () => voi
     return (
     <div className="text-center my-12">
         <TbFaceIdError className="w-full h-16" />
-        <h2 className="font-bold">Něco se pokazilo!</h2>
+        <h2>Něco se pokazilo!</h2>
         <button type="button" className="border border-solid border-neutral-800 px-4 py-2 m-2 cursor-pointer hover:bg-neutral-800 transition-colors duration-300 ease-linear hover:text-white" onClick={handleTryAgain}>Zkusit znovu</button>
     </div>
   )
