@@ -1,19 +1,26 @@
+import type { Metadata } from "next";
 import { getDetailCoin } from "@/lib/api";
 import CoinDetailPage from "@/app/components/CoinDetailPage";
 
-const coinDetail = async ({ params }: { params: Promise<{ id: string }> }) => {
+type CoinPageProps = {
+    params: Promise<{ id: string }>;
+};
+
+export async function generateMetadata({ params }: CoinPageProps): Promise<Metadata> {
     const { id } = await params;
     const coin = await getDetailCoin(id);
 
-    return (
-        <>
-            <CoinDetailPage coinData={coin} />
-        </>
-    )
+    return {
+        title: `${coin.name} (${coin.symbol.toUpperCase()})`,
+        description: `Cena, tržní statistiky a sedmidenní vývoj kryptoměny ${coin.name}.`,
+    };
 }
 
-export default coinDetail;
+const CoinDetail = async ({ params }: CoinPageProps) => {
+    const { id } = await params;
+    const coin = await getDetailCoin(id);
 
-/* graf
-https://www.tremor.so/charts
-*/
+    return <CoinDetailPage coinData={coin} />;
+};
+
+export default CoinDetail;

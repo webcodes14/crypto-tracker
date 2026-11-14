@@ -17,6 +17,7 @@ const HeaderLink = ({ href, children }: HeaderLinkProps) => {
     return <li>
         <Link 
             href={href}
+            aria-current={pathActive ? "page" : undefined}
             className={pathActive ? `${classes.link} ${classes.active}` : `${classes.link}`}>
                 {children}
         </Link>

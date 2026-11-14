@@ -1,9 +1,8 @@
-
-const Skeleton = ({ className }: {className?: string}) => {
-
-    return (
-        <div className={`bg-gray-200 animate-pulse rounded-md ${className}`}></div>
-    )
-};
+const Skeleton = ({ className = "" }: { className?: string }) => (
+    <div
+        aria-hidden="true"
+        className={`animate-pulse rounded-xl bg-slate-200 ${className}`}
+    />
+);
 
 export default Skeleton;

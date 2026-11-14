@@ -1,117 +1,81 @@
 # Crypto Tracker
 
-A small responsive cryptocurrency dashboard built with Next.js. It displays
-current market data from CoinGecko, lets users search and sort the listed
-coins, and provides a detail page with market statistics and a seven-day price
-chart.
+A responsive cryptocurrency dashboard built with Next.js 16. It shows the
+ten coins with the highest market capitalization, supports search and sorting,
+and provides a detail page with a seven-day price chart.
 
 The Czech version of this documentation is available in
 [README_CZ.md](./README_CZ.md).
 
 ## Features
 
-- Shows the top 10 cryptocurrencies ordered by market capitalization.
-- Fetches current price, symbol, market-cap data, and coin images from the
-  CoinGecko API.
-- Searches coins by name or symbol.
-- Sorts the currently filtered list by default order, highest price, or lowest
-  price.
-- Provides a detail page at `/coin/[id]` with:
-  - current USD price and 24-hour change,
-  - 24-hour low/high range,
-  - market cap, fully diluted valuation, and supply statistics,
-  - a seven-day price chart.
-- Includes a `/tech-stack` page describing the technologies used.
-- Uses responsive Tailwind CSS styling and CSS Modules where component-specific
-  styles are needed.
+- Server-side CoinGecko market data with 60-second revalidation.
+- Runtime API response validation with Zod.
+- Search by coin name or symbol and accessible native sorting controls.
+- Coin detail pages with 24-hour change and range, supply statistics, and a
+  seven-day price chart.
+- Responsive layouts, loading and empty states, and a retryable error screen.
 
 ## Tech stack
 
-- [Next.js](https://nextjs.org/) 16 with the App Router
-- [React](https://react.dev/) 19
-- [TypeScript](https://www.typescriptlang.org/)
-- [Tailwind CSS](https://tailwindcss.com/) 4
-- [Chart.js](https://www.chartjs.org/) with
-  [react-chartjs-2](https://react-chartjs-2.js.org/)
-- [React Icons](https://react-icons.github.io/react-icons/)
-- [CoinGecko API](https://docs.coingecko.com/reference/introduction)
+- Next.js 16 App Router and React 19
+- TypeScript and Zod
+- Tailwind CSS 4 and CSS Modules
+- Chart.js and `react-chartjs-2`
+- Node.js built-in test runner
 
 ## Requirements
 
 - Node.js 20.9 or newer
 - npm
-- Internet access for requests to CoinGecko and for remote coin images
+- Internet access for the CoinGecko API and remote coin images
 
 ## Getting started
 
-Install dependencies:
-
 ```bash
-npm install
-```
-
-Start the development server:
-
-```bash
+npm ci
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in a browser.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Available scripts
+## Project checks
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Starts the Next.js development server. |
-| `npm run build` | Creates a production build. |
-| `npm run start` | Serves the production build. Run `npm run build` first. |
-| `npm run lint` | Runs ESLint. |
+```bash
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
 
-## Data and caching
+GitHub Actions runs these checks on every push and pull request.
 
-Data is loaded server-side through the helpers in `lib/api.ts`:
+## AI tools
 
-- `GET /api/v3/coins/markets` loads the first 10 coins by market cap.
-- `GET /api/v3/coins/{id}` loads the selected coin's detail data and
-  seven-day sparkline.
-
-The requests use Next.js server-side revalidation with a 60-second interval.
-No application environment variables are currently required. CoinGecko
-availability and rate limits can affect loading the dashboard; the app
-surfaces failed requests through the relevant Next.js error handling.
-
-Coin images are allowed from `coin-images.coingecko.com` in
-`next.config.ts`.
+GitHub Copilot was used as a supporting tool during development and code
+updates. AI-generated suggestions were adapted and checked with tests, linting,
+and a production build.
 
 ## Project structure
 
 ```text
 app/
-  page.tsx                    Dashboard page
-  coin/[id]/page.tsx          Coin detail route
-  tech-stack/page.tsx         Technology overview
-  components/                 UI components and client-side interactions
+  coin/[id]/page.tsx       Coin detail page and metadata
+  components/              Server and client UI components
+  tech-stack/page.tsx      Technology and design decisions
+  page.tsx                 Dashboard
 lib/
-  api.ts                      CoinGecko types and server-side fetch helpers
-public/
-  data.json                   Static public data asset
-  crypto-tracker.png          Application logo
+  api.ts                   Zod schemas and CoinGecko server helpers
+  coin-utils.ts            Formatting and price-range calculation
+  api.test.ts              Validation and utility tests
 ```
 
-The dashboard and coin detail pages use server components for data loading.
-The search, sorting controls, and Chart.js visualization are implemented in
-client components.
+## Data and limitations
 
-## Notes
+All prices are shown in USD. CoinGecko data may be delayed, unavailable, or
+affected by API rate limits. Responses are validated, and missing numeric
+values are shown as unavailable. This is a read-only portfolio project with no
+accounts, database, or persisted user preferences.
 
-- Prices and market values are displayed in USD.
-- The dashboard intentionally shows only the first 10 coins returned by the
-  market-cap query.
-- The project does not include authentication, a database, or persistent user
-  preferences.
-- CoinGecko is an external service, so its data may change and its API limits
-  apply.
-
-## License
-
-No license file is currently included in the repository.
+No license has been selected for this repository. Add one explicitly before
+redistributing the project.

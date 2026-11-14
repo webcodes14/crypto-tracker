@@ -1,15 +1,34 @@
 .link {
-    color: #0f172a;
-    padding: 0.4rem 0.7rem;
-    transition: all .2s linear;
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.55rem 0.8rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 160ms ease, color 160ms ease;
 }
 
-.link:hover, .link:focus {
-    background-color: #0f172a;
-    color: white;
+.link:hover {
+  color: #0f172a;
 }
 
 .active {
-    border-top: 1px solid #0f172a;
-    border-bottom: 1px solid #0f172a;
+  background: #10251e;
+  color: #f8fafc;
+}
+
+.active:hover {
+  background: #19382d;
+  color: #ffffff;
+}
+
+@media (max-width: 420px) {
+  .link {
+    padding-inline: 0.65rem;
+    font-size: 0.8rem;
+  }
 }

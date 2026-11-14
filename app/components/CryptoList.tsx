@@ -1,98 +1,68 @@
-'use client';
+"use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
-import { IoIosArrowDropdown } from "react-icons/io";
-
-import { Coin } from "@/lib/api";
+import { useMemo, useState } from "react";
+import type { Coin } from "@/lib/api";
+import { filterAndSortCoins, type CoinSortMode } from "@/lib/coin-utils";
 import CoinCard from "./CoinCard";
 import SearchBar from "./SearchBar";
-
-import classes from "../components/CryptoList.module.css";
+import classes from "./CryptoList.module.css";
 
 interface CryptoListProps {
     initialData: Coin[];
 }
 
 const CryptoList = ({ initialData }: CryptoListProps) => {
-    const [ searchTerm, setSearchTerm ] = useState("");
-    const [ sortTerms, setSortTerms ] = useState<'default' | 'desc' | 'asc'>('default');
-    const [ sortMenu, setSortMenu ] = useState(false);
-    const sortRef = useRef<HTMLDivElement>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [sortMode, setSortMode] = useState<CoinSortMode>("market-cap");
 
-    const handleSortMenu = () => {
-        setSortMenu(prevState => !prevState);
-    }
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if ( sortRef.current && !sortRef.current.contains(event.target as Node) ) {
-                setSortMenu(false);
-            }
-        }
-
-        document.addEventListener('mousedown', handleClickOutside);
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        }
-    }, []);
-
-    const filteredTerm = useMemo(() => {
-        const cleanSearch = searchTerm.toLocaleLowerCase().trim();
-        
-        const filtered = initialData.filter(item => 
-            item.name.toLocaleLowerCase().includes(cleanSearch) || 
-            item.symbol.toLocaleLowerCase().includes(cleanSearch)
-        );
-
-        if (sortTerms === 'default') {
-            return filtered;
-        }
-
-        if (sortTerms === 'desc') {
-            return filtered.sort(( a, b ) => b.current_price - a.current_price );
-        }
-
-        if (sortTerms === 'asc') {
-            return filtered.sort(( a, b ) => a.current_price - b.current_price );
-        }
-
-        return filtered;
-
-    }, [searchTerm, initialData, sortTerms]);
+    const filteredCoins = useMemo(
+        () => filterAndSortCoins(initialData, searchTerm, sortMode),
+        [initialData, searchTerm, sortMode],
+    );
 
     return (
-        <>
-            <div className="md:flex md:justify-between md:items-center">
+        <div className="space-y-4">
+            <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-end sm:p-4">
                 <SearchBar value={searchTerm} onChange={setSearchTerm} />
-                <div className="relative w-48" ref={sortRef}>
-                    <button onClick={handleSortMenu} className="cursor-pointer md:ml-4 md:mr-3 flex items-center gap-1.5">
-                        <IoIosArrowDropdown className="-mt-0.5" /> <span>Řazení</span> 
-                        <span>- {sortTerms === 'default' ? 'Výchozí' : sortTerms === 'desc' ? 'Nejdražší' : 'Nejlevnější'}</span>
-                    </button>
-                    {sortMenu && (
-                        <div className="flex items-center flex-col absolute top-full left-6 pt-0 px-4 pb-4 mt-2 bg-white">
-                            <button className="text-left cursor-pointer my-0.5 bg-white w-full" onClick={() => setSortTerms('default')} type="button">Výchozí</button>
-                            <button className="text-left cursor-pointer my-0.5 bg-white w-full" onClick={() => setSortTerms('desc')} type="button">Nejdražší</button>
-                            <button className="text-left cursor-pointer my-0.5 bg-white w-full" onClick={() => setSortTerms('asc')} type="button">Nejlevnější</button>
-                        </div>
-                    )}
-                </div>
+                <label className="flex w-full flex-col gap-1.5 text-sm font-medium text-slate-600 sm:w-56">
+                    Seřadit podle
+                    <select
+                        className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm text-slate-900 focus:border-emerald-500 focus:ring-emerald-500"
+                        value={sortMode}
+                        onChange={(event) => {
+                            const value = event.target.value;
+                            if (value === "market-cap" || value === "price-desc" || value === "price-asc") {
+                                setSortMode(value);
+                            }
+                        }}
+                    >
+                        <option value="market-cap">Tržní kapitalizace</option>
+                        <option value="price-desc">Nejvyšší cena</option>
+                        <option value="price-asc">Nejnižší cena</option>
+                    </select>
+                </label>
             </div>
 
-            {filteredTerm.length > 0 ? (
-                <ul className={classes['coin-list']}>
-                    {filteredTerm.map(item => (
-                        <CoinCard key={item.id} coin={item} />
+            <p className="px-1 text-sm text-slate-500" role="status" aria-live="polite">
+                Zobrazeno {filteredCoins.length} z {initialData.length} kryptoměn
+            </p>
+
+            {filteredCoins.length > 0 ? (
+                <ul className={classes["coin-list"]} aria-label="Seznam kryptoměn">
+                    {filteredCoins.map((coin) => (
+                        <CoinCard key={coin.id} coin={coin} />
                     ))}
                 </ul>
             ) : (
-                <h3 className="text-center">
-                    <strong><em>Žádná kryptoměna neodpovídá vašemu hledání.</em></strong>
-                </h3>
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
+                    <p className="font-semibold text-slate-900">Nic jsme nenašli</p>
+                    <p className="mt-1 text-sm text-slate-500">
+                        Zkuste jiný název nebo symbol kryptoměny.
+                    </p>
+                </div>
             )}
-        </>
-    )
-}
+        </div>
+    );
+};
 
 export default CryptoList;
